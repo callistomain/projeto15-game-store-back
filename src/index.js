@@ -1,7 +1,7 @@
 import express, { json } from 'express';
 import cors from 'cors';
 import authRouter from './routes/authRouter.js';
-import { users } from './database/db.js'; // Test/Debug (TO DELETE) 
+import { sessions, users } from './database/db.js'; // Test/Debug (TO DELETE) 
 
 // Express
 const app = express();
@@ -23,6 +23,27 @@ app.get('/users', async (req, res) => {
   try {
     const allUsers = await users.find().toArray();
     res.send(allUsers);
+  } catch (err) {
+    console.log(err.message);
+    res.sendStatus(500);
+  }
+});
+
+app.get('/ses', async (req, res) => {
+  try {
+    const allSessions = await sessions.find().toArray();
+    res.send(allSessions);
+  } catch (err) {
+    console.log(err.message);
+    res.sendStatus(500);
+  }
+});
+
+app.delete('/ses', async (req, res) => {
+  try {
+    await sessions.deleteMany({});
+    const allSessions = await sessions.find().toArray();
+    res.send(allSessions);
   } catch (err) {
     console.log(err.message);
     res.sendStatus(500);
