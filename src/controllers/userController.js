@@ -1,4 +1,7 @@
+
 import { carts, products, sessions,sales } from "../database/db.js";
+import { ObjectId } from "mongodb";
+
 
 export async function postCart (req, res) {
   const { token } = req;
@@ -24,7 +27,12 @@ export async function getCart (req, res) {
   try {
     const {userId} = await sessions.findOne({token});
     const cart = await carts.findOne({userId});
-    res.send(cart);
+    const productsTemp = await products.find().toArray();
+    const gamesReturn = []
+    cart.data.map((i)=>gamesReturn.push(productsTemp[i]));
+    let totalValue = 0;
+    gamesReturn.map((i)=> totalValue+=parseFloat(i.price))
+    res.send({totalPrice: totalValue, games:gamesReturn, data:cart.data});
   } catch (err) {
     console.log(err.message);
     res.sendStatus(500);
@@ -43,9 +51,19 @@ export async function getProducts (req, res) {
 
 export async function postSales (req, res){
   const { token } = req;
+  const {gamesBoughtIds, buyerInfo} = req.body;
   try{
+
     const {userId} = await sessions.findOne({token});
-    sales.insertOne({...req.body, userId})
+    const gamesBought = [];
+    for (const id of gamesBoughtIds) {
+      const gameFound = await products.findOne({ _id: ObjectId(id) });
+      gamesBought.push(gameFound)
+    }
+    let totalValue = 0;
+    gamesBought.map((i)=> totalValue+=parseFloat(i.price))
+    const gamesNames = gamesBought.map((i)=>{return i.title})
+    sales.insertOne({...req.body,gamesBought:gamesNames, userId, totalPrice:totalValue})
     res.sendStatus(200)
   }catch(err){
     console.log(err.message);
