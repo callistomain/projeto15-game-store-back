@@ -1,4 +1,4 @@
-import { carts, products, sessions } from "../database/db.js";
+import { carts, products, sessions,sales } from "../database/db.js";
 
 export async function postCart (req, res) {
   const { token } = req;
@@ -36,6 +36,18 @@ export async function getProducts (req, res) {
     const allProducts = await products.find().toArray();
     res.send(allProducts);
   } catch (err) {
+    console.log(err.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function postSales (req, res){
+  const { token } = req;
+  try{
+    const {userId} = await sessions.findOne({token});
+    sales.insertOne({...req.body, userId})
+    res.sendStatus(200)
+  }catch(err){
     console.log(err.message);
     res.sendStatus(500);
   }
