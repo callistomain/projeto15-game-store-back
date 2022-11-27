@@ -28,10 +28,10 @@ export async function getCart (req, res) {
     const {userId} = await sessions.findOne({token});
     const cart = await carts.findOne({userId});
     const productsTemp = await products.find().toArray();
-    const gamesReturn = []
-    cart.data.map((i)=>gamesReturn.push(productsTemp[i]));
+    const gamesReturn = [];
+    cart.data.map((i) => gamesReturn.push(productsTemp[i]));
     let totalValue = 0;
-    gamesReturn.map((i)=> totalValue+=parseFloat(i.price))
+    gamesReturn.map((i)=> totalValue += parseFloat(i.price))
     res.send({totalPrice: totalValue, games:gamesReturn, data:cart.data});
   } catch (err) {
     console.log(err.message);
