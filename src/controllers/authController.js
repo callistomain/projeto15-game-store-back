@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { users, sessions } from "../database/db.js";
+import { users, sessions, carts } from "../database/db.js";
 import { v4 as uuid } from 'uuid';
 
 export async function postSignup(req, res) {
@@ -38,6 +38,11 @@ export async function postLogin (req, res) {
     
     const token = uuid();
     await sessions.insertOne({token, userId: user._id});
+
+    const userFound = await carts.findOne({userId: user._id});
+    const data = [];
+    if (!userFound) await carts.insertOne({userId: user._id, data});
+
     delete user.password;
     res.send({...user, token});
 
