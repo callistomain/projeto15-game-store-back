@@ -12,7 +12,7 @@ try {
 }
 
 // MongoDB
-const db = client.db('gameStore-dev');
+const db = client.db('gameStore');
 export const users = db.collection("users");
 export const sessions = db.collection("sessions");
 export const products = db.collection("products");
