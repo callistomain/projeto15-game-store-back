@@ -1,5 +1,5 @@
 
-import { carts, products, sessions,sales } from "../database/db.js";
+import { carts, products, sessions,sales, users } from "../database/db.js";
 import { ObjectId } from "mongodb";
 
 
@@ -60,6 +60,7 @@ export async function postSales (req, res){
   try{
 
     const {userId} = await sessions.findOne({token});
+    const user = await users.findOne({_id: userId})
     const gamesBought = [];
     for (const id of gamesBoughtIds) {
       const gameFound = await products.findOne({ _id: ObjectId(id) });
@@ -69,7 +70,13 @@ export async function postSales (req, res){
     gamesBought.map((i)=> totalValue+=parseFloat(i.price))
     const gamesNames = gamesBought.map((i)=>{return i.title})
     sales.insertOne({...req.body,gamesBought:gamesNames, userId, totalPrice:totalValue})
-    res.sendStatus(200)
+    const promise = {
+      name: user.name,
+      price:totalValue,
+      gamesBought:gamesNames,
+      payment:buyerInfo
+    }
+    res.send(promise).status(200)
   }catch(err){
     console.log(err.message);
     res.sendStatus(500);
